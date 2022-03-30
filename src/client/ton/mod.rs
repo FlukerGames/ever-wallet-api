@@ -210,7 +210,10 @@ impl TonClient for TonClientImpl {
         let account = UInt256::from_be_bytes(&owner.address().get_bytestring(0));
         let contract = match self.ton_core.get_contract_state(&account) {
             Ok(contract) => contract,
-            Err(_) => return Ok(NetworkAddressData::uninit(owner)),
+            Err(e) => {
+                log::error!("Error on get contract state: {:?}", e);
+                return Ok(NetworkAddressData::uninit(owner))
+            },
         };
 
         let network_balance = BigDecimal::from_u128(contract.account.storage.balance.grams.0)
